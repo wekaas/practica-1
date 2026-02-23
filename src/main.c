@@ -88,6 +88,87 @@ int main() {
 
     close(tc_fd);
 
+    int tm_fd;
+
+    uint8_t byte_to_write;
+
+    //CREO LAS VARIABLES DE LOS QUE VOY A USAR:
+
+    uint16_t tm_packet_id = 0;
+    uint16_t tm_packet_seq_ctrl;
+    uint16_t tm_packet_len;
+    uint32_t tm_df_header = 0;
+    uint32_t tm_source_data = 0;
+
+    tm_fd = open("single-tm.bin", O_WRONLY | O_CREAT | O_TRUNC, 0664);
+
+    //PACKET ID:
+
+    tm_packet_id = tm_packet_id | (1 << 11);
+
+    tm_packet_id = tm_packet_id | (0x32C); //primero creo el bit(te dice el enunciado el valor de cada parte
+
+    byte_to_write = (tm_packet_id & 0xFF00) >> 8;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_packet_id & 0x00FF);
+    write(tm_fd, &byte_to_write, 1);
+
+    //PACKET SEQUENCE CONTROL:
+
+    tm_packet_seq_ctrl = 0xC000; //lo pongo de forma bruta
+
+    byte_to_write = (tm_packet_seq_ctrl & 0xFF00) >> 8;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_packet_seq_ctrl & 0x00FF);
+    write(tm_fd, &byte_to_write, 1);
+
+    //PACKET LENGTH:
+
+    tm_packet_len = 0x0007;
+
+    byte_to_write = (tm_packet_len & 0xFF00) >> 8;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_packet_len & 0x00FF);
+    write(tm_fd, &byte_to_write, 1);
+
+    //PACKET DATA FIELD HEADER:
+
+    tm_df_header = tm_df_header | (1 << 28) | (1 << 16) | (1 << 8) | 0x78;
+
+    byte_to_write = (tm_df_header & 0xFF000000) >> 24;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_df_header & 0x00FF0000)  >> 16;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_df_header & 0x0000FF00) >> 8;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_df_header & 0x000000FF);
+    write(tm_fd, &byte_to_write, 1);
+
+    //SOURCE DATA:
+
+    tm_source_data = tm_source_data | (1 << 28) | (1 << 27) | (0x32C << 16) | (0x3 <<14);
+
+    byte_to_write = (tm_source_data & 0xFF000000) >> 24;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_source_data & 0x00FF0000)  >> 16;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_source_data & 0x0000FF00) >> 8;
+    write(tm_fd, &byte_to_write, 1);
+
+    byte_to_write = (tm_source_data & 0x000000FF);
+    write(tm_fd, &byte_to_write, 1);
+
+    close(tm_fd);
+
+
     return 0;
 
 }
